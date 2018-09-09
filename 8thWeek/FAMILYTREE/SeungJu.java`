@@ -1,0 +1,80 @@
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.io.*;
+public class Main {
+        static int ans =0 ;
+        static Circle[] circles;
+        public static void main(String[] args) throws IOException {
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                int T = Integer.parseInt(br.readLine());
+                for(int t=0;t<T;t++){
+                        int n = Integer.parseInt(br.readLine().trim());
+                        circles = new Circle[n];
+                        for(int i=0;i<n;i++){
+                                StringTokenizer stk = new StringTokenizer(br.readLine().trim());
+                                circles[i] = new Circle(Integer.parseInt(stk.nextToken()),Integer.parseInt(stk.nextToken()),Integer.parseInt(stk.nextToken()));
+                        }
+                        Arrays.sort(circles);
+                        ArrayList<ArrayList<Integer>> edge = new ArrayList<ArrayList<Integer>>();
+                        int root = 0;
+                        for(int i=0;i<n;i++) edge.add(new ArrayList<Integer>());
+                        for(int i=0;i<n;i++){
+                                int index = getParent(i);
+                                if(index!= -1){
+                                        edge.get(index).add(i);
+                                        edge.get(i).add(index);
+                                }
+                                else
+                                        root = i;
+                        }
+                        ans = 0;
+                        for(int i=0;i<n;i++){
+                                if(edge.get(i).size()==1 ){
+                                        //leaf
+                                        dfs(i,-1,edge,0);
+                                }
+                        }
+                        System.out.println(ans);
+                }
+        }
+        public static void dfs(int start,int preNode,ArrayList<ArrayList<Integer>> edge,int h){
+                ArrayList<Integer> arr = edge.get(start);
+                ans = Math.max(ans,h);
+
+                for(int i=0;i<arr.size();i++){
+                        if(arr.get(i)!=preNode){
+                                dfs(arr.get(i),start,edge,h+1);
+                        }
+                }
+        }
+        public static int getParent(int a){
+                for(int i = 0 ; i<circles.length ;i++){
+                        if (isEnclosed(i, a)) {
+                                return i;
+                        }
+                }
+                return -1;
+        }
+        static int sqr(int x) {return x*x;}
+        static int sqrDist(int a,int b){
+                return sqr(circles[a].x-circles[b].x) + sqr(circles[a].y-circles[b].y);
+        }
+        public static boolean isEnclosed(int a,int b){
+                return circles[a].r > circles[b].r && sqrDist(a,b) < sqr(circles[a].r - circles[b].r);
+        }
+        public static class Circle implements Comparable<Circle>{
+                int x,y,r;
+                public Circle(int x,int y,int r){
+                        this.x = x;
+                        this.y = y;
+                        this.r = r;
+                }
+
+                @Override
+                public int compareTo(Circle o) {
+                        return r-o.r;
+                }
+        }
+
+}
